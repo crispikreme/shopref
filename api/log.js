@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
     });
 
     const anthropicData = await anthropicRes.json();
-    const raw = anthropicData.content?.[0]?.text || '{}';console.log('[ShopRef raw]', raw);
+    const raw = anthropicData.content?.[0]?.text || '{}';console.log('[ShopRef raw]', JSON.stringify(anthropicData));
     let parsed;
     try { parsed = JSON.parse(raw.replace(/^```json|```$/g, '').trim()); }
     catch { parsed = { answer: 'Parse error', detail: '', confidence: 'low', confidence_note: '' }; }
