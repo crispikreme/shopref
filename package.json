@@ -4,7 +4,7 @@
   "description": "Voice-activated automotive reference tool for shop floor technicians",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "dependencies": {
     "google-auth-library": "^9.15.1",
