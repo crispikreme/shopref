@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
       requestBody: { values: [row] }
     });
 
-    return res.status(200).json({ success: true, ...parsed });
+    return res.status(200).json({ success: true, ...parsed, _raw: raw, _anthropicData: anthropicData });
 
   } catch (err) {
     console.error('[ShopRef error]', err);
