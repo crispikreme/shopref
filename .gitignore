@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Service account credentials — NEVER commit this file
+shopref-d45cc9116f14.json
+*.json.key
+service-account*.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Vercel local dev
+.vercel
+
+# OS artifacts
+.DS_Store
+Thumbs.db

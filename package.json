@@ -1,0 +1,13 @@
+{
+  "name": "shopref",
+  "version": "1.0.0",
+  "description": "Voice-activated automotive reference tool for shop floor technicians",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^144.0.0"
+  }
+}
