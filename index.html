@@ -96,7 +96,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   <input type="text" id="input-session" placeholder="Session #" style="max-width:110px"/>
   <input type="text" id="input-tech" placeholder="Tech name"/>
 </div>
-<div class="vehicle-bar" id="vehicle-bar">
+<div class="session-strip">
+  <input type="text" id="input-vin" placeholder="VIN (optional)" maxlength="17" style="text-transform:uppercase;letter-spacing:1px;" oninput="this.value=this.value.toUpperCase()"/>
+</div><div class="vehicle-bar" id="vehicle-bar">
   <select id="sel-year"><option value="">Year</option></select>
   <select id="sel-make" disabled><option value="">Make</option></select>
   <select id="sel-model" disabled><option value="">Model</option></select>
