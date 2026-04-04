@@ -142,11 +142,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   <div id="history-list"></div>
 </div>
 </div>
-<script>
+<script>// Auto-increment session counter
+function getNextSession() {
+  const last = parseInt(localStorage.getItem('shopref_session') || '0');
+  const next = last + 1;
+  localStorage.setItem('shopref_session', next);
+  return String(next).padStart(3, '0');
+}
 const YEARS=Array.from({length:35},(_,i)=>(2024-i).toString());
 const MAKES=["Acura","BMW","Chevrolet","Chrysler","Dodge","Ford","GMC","Honda","Hyundai","Jeep","Kia","Mazda","Nissan","RAM","Subaru","Toyota","Volkswagen"];
 const MODELS={Honda:["Accord","Civic","CR-V","Fit","Odyssey","Pilot"],Ford:["F-150","F-250","Mustang","Explorer","Focus","Ranger"],Chevrolet:["Silverado","Equinox","Malibu","Tahoe","Colorado","Traverse"],Toyota:["Camry","Corolla","Tacoma","4Runner","RAV4","Tundra"],Nissan:["Altima","Frontier","Maxima","Rogue","Sentra","Titan"],BMW:["3 Series","5 Series","7 Series","X3","X5","M3"],Dodge:["Charger","Challenger","Durango","Ram 1500"],Subaru:["Outback","Forester","Impreza","WRX","Crosstrek"],Mazda:["Mazda3","Mazda6","CX-5","MX-5 Miata","CX-9"],Hyundai:["Elantra","Sonata","Tucson","Santa Fe","Kona"],Kia:["Optima","Sorento","Sportage","Soul","Telluride"],Volkswagen:["Jetta","Passat","Tiguan","Golf","Atlas"],Acura:["TLX","MDX","RDX","ILX"],GMC:["Sierra","Yukon","Canyon","Terrain"],Chrysler:["300","Pacifica"],Jeep:["Wrangler","Cherokee","Grand Cherokee","Gladiator","Compass"],RAM:["1500","2500","3500","ProMaster"]};
-let vehicle=null,history=[],recognition=null,listening=false,currentEntry=null;
+let vehicle=null,history=[],recognition=null,listening=false,currentEntry=null;document.getElementById('input-session').value = getNextSession();
+document.getElementById('input-session').readOnly = true;
 const selYear=document.getElementById('sel-year'),selMake=document.getElementById('sel-make'),selModel=document.getElementById('sel-model'),btnLock=document.getElementById('btn-lock'),vehicleBar=document.getElementById('vehicle-bar'),vehiclePill=document.getElementById('vehicle-pill'),vehicleLabel=document.getElementById('vehicle-label'),queryInput=document.getElementById('query-input'),statusBar=document.getElementById('status-bar'),resultCard=document.getElementById('result-card'),btnMic=document.getElementById('btn-mic'),noVoiceMsg=document.getElementById('no-voice-msg'),feedbackRow=document.getElementById('feedback-row');
 YEARS.forEach(y=>selYear.add(new Option(y,y)));
 selYear.onchange=()=>{selMake.innerHTML='<option value="">Make</option>';MAKES.forEach(m=>selMake.add(new Option(m,m)));selMake.disabled=!selYear.value;selModel.disabled=true;selModel.innerHTML='<option value="">Model</option>';updateLockBtn()};
