@@ -145,9 +145,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 <script>// Auto-increment session counter
 function getNextSession() {
   const last = parseInt(localStorage.getItem('shopref_session') || '0');
+  return String(last).padStart(3, '0');
+}
+function incrementSession() {
+  const last = parseInt(localStorage.getItem('shopref_session') || '0');
   const next = last + 1;
   localStorage.setItem('shopref_session', next);
-  return String(next).padStart(3, '0');
+  document.getElementById('input-session').value = String(next).padStart(3, '0');
 }
 const YEARS=Array.from({length:35},(_,i)=>(2024-i).toString());
 const MAKES=["Acura","BMW","Chevrolet","Chrysler","Dodge","Ford","GMC","Honda","Hyundai","Jeep","Kia","Mazda","Nissan","RAM","Subaru","Toyota","Volkswagen"];
@@ -165,7 +169,7 @@ function clearVehicle(){vehicle=null;vehiclePill.style.display='none';vehicleBar
 function setStatus(msg,type){statusBar.innerHTML=msg;statusBar.className='status-bar'+(type?' '+type:'')}
 async function submitQuery(){
   const q=queryInput.value.trim();
-  if(!q)return;
+  if(!q)return;incrementSession();
   if(!vehicle){setStatus('⚠ Set vehicle first','thinking');return}
   const goBtn=document.getElementById('btn-go');
   goBtn.disabled=true;resultCard.classList.remove('show');feedbackRow.classList.remove('show');
