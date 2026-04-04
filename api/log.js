@@ -1,73 +1,69 @@
 const { google } = require('googleapis');
 
-// Environment variables (set these in Vercel project settings):
-//   GOOGLE_SHEET_ID               — 118205676371294514951
-//   GOOGLE_SERVICE_ACCOUNT_JSON   — the full contents of shopref-d45cc9116f14.json
-
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 function getCredentials() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON environment variable is not set.');
-  try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON.');
-  }
+  if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON is not set.');
+  try { return JSON.parse(raw); }
+  catch { throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON.'); }
 }
 
-// Columns (in order): Timestamp | Session | Tech | Vehicle | Query | Answer | Confidence | Correct | Notes
-const COLUMNS = ['timestamp', 'session', 'tech', 'vehicle', 'query', 'answer', 'confidence', 'correct', 'notes'];
-
 module.exports = async (req, res) => {
-  // Only accept POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed. Use POST.' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed.' });
 
-  if (!SHEET_ID) {
-    return res.status(500).json({ error: 'GOOGLE_SHEET_ID environment variable is not set.' });
-  }
+  const body = req.body || {};
+  const { session, tech, vehicle, query } = body;
+
+  if (!query) return res.status(400).json({ error: 'No query provided.' });
 
   try {
-    const body = req.body || {};
+    // Call Anthropic API server-side
+    const prompt = `You are an automotive reference tool for shop floor technicians. Vehicle: ${vehicle}. Tech asks: "${query}"\nRespond ONLY with valid JSON, no markdown:\n{ "answer": "lookup result in as few words as possible", "detail": "1-2 sentences of essential context. Use <strong> tags for key values.", "confidence": "high|medium|low", "confidence_note": "if medium or low, brief reason. empty string if high" }`;
 
-    // Build the row — timestamp is always server-generated
-    const timestamp = new Date().toISOString();
-    const row = [
-      timestamp,
-      body.session   ?? '',
-      body.tech      ?? '',
-      body.vehicle   ?? '',
-      body.query     ?? '',
-      body.answer    ?? '',
-      body.confidence ?? '',
-      body.correct   ?? '',
-      body.notes     ?? '',
-    ];
-
-    // Authenticate with Google using the service account credentials
-    const auth = new google.auth.GoogleAuth({
-      credentials: getCredentials(),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
 
-    const sheets = google.sheets({ version: 'v4', auth });
+    const anthropicData = await anthropicRes.json();
+    const raw = anthropicData.content?.[0]?.text || '{}';
+    let parsed;
+    try { parsed = JSON.parse(raw.replace(/^```json|```$/g, '').trim()); }
+    catch { parsed = { answer: 'Parse error', detail: '', confidence: 'low', confidence_note: '' }; }
 
-    // Append the row to Sheet1 (first tab); adjust range if your tab is named differently
+    // Log to Google Sheets
+    const timestamp = new Date().toISOString();
+    const row = [timestamp, session ?? '', tech ?? '', vehicle ?? '', query, parsed.answer || '', parsed.confidence || '', '', parsed.confidence_note || ''];
+
+    const auth = new google.auth.GoogleAuth({ credentials: getCredentials(), scopes: ['https://www.googleapis.com/auth/spreadsheets'] });
+    const sheets = google.sheets({ version: 'v4', auth });
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
       range: 'Sheet1!A:I',
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
-      requestBody: {
-        values: [row],
-      },
+      requestBody: { values: [row] }
     });
 
-    return res.status(200).json({ success: true, timestamp });
+    return res.status(200).json({ success: true, ...parsed });
+
   } catch (err) {
-    console.error('[ShopRef log error]', err);
-    return res.status(500).json({ error: 'Failed to write log entry.', detail: err.message });
+    console.error('[ShopRef error]', err);
+    return res.status(500).json({ error: 'Server error.', detail: err.message });
   }
 };
