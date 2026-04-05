@@ -17,3 +17,6 @@ service-account*.json
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+.vercel
+.env*.local

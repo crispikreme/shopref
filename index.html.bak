@@ -90,7 +90,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 <body>
 <div class="app">
 <div class="header">
-  <div class="logo">ShopRef <span>PHASE 1 — FIELD TEST</span></div><div style="font-family:var(--mono);font-size:10px;color:#e84500;text-align:center;padding:4px;background:rgba(232,69,0,0.1);border-bottom:1px solid rgba(232,69,0,0.3);">⚠ BETA — AI responses may be inaccurate. Always verify specs against OEM service manual before performing repairs.</div>
+  <div class="logo">ShopRef <span>PHASE 1 — FIELD TEST</span></div>
 </div>
 <div class="session-strip">
   <input type="text" id="input-session" placeholder="Session #" style="max-width:110px"/>
@@ -176,8 +176,7 @@ function lockVehicle(){vehicle=`${selYear.value} ${selMake.value} ${selModel.val
 function clearVehicle(){vehicle=null;vehiclePill.style.display='none';vehicleBar.style.display='flex';selYear.value='';selMake.value='';selModel.value='';selMake.disabled=true;selModel.disabled=true;btnLock.disabled=true;resultCard.classList.remove('show');feedbackRow.classList.remove('show');setStatus('','')}
 function setStatus(msg,type){statusBar.innerHTML=msg;statusBar.className='status-bar'+(type?' '+type:'')}
 async function submitQuery(){
-  const q=queryInput.value.trim();const criticalKeywords = ['torque','head bolt','bearing','clearance','torque spec','bolt torque','clamping','compression','timing','valve clearance','rod bearing','main bearing','head stud'];
-const isCritical = criticalKeywords.some(k => q.toLowerCase().includes(k));
+  const q=queryInput.value.trim();
   if(!q)return;incrementSession();
   if(!vehicle){setStatus('⚠ Set vehicle first','thinking');return}
   const goBtn=document.getElementById('btn-go');
@@ -198,11 +197,11 @@ const isCritical = criticalKeywords.some(k => q.toLowerCase().includes(k));
   });
   const data = await res.json();
   if (data.error) { setStatus('⚠ API error', ''); console.error(data.error); goBtn.disabled = false; return; }
-  currentEntry = { session: document.getElementById('input-session').value.trim() || '', tech: document.getElementById('input-tech').value.trim() || '', vehicle, query: q, answer: data.answer || '', confidence: data.confidence || '', correct: '', notes: data.confidence_note || '', timestamp: data.timestamp, vin: document.getElementById('input-vin').value.trim() || '' };
-  showResult(q, data,critical);{
+  currentEntry = { session: document.getElementById('input-session').value.trim() || '', tech: document.getElementById('input-tech').value.trim() || '', vehicle, query: q, answer: data.answer || '', confidence: data.confidence || '', correct: '', notes: data.confidence_note || '', timestamp: data.timestamp, vin: document.getElementById('input-vin').value.trim() || '' }; document.getElementById('input-tech').value.trim() || '', vehicle, query: q, answer: data.answer || '', confidence: data.confidence || '', correct: '', notes: data.confidence_note || '' };
+  showResult(q, data);
   addHistory(q, data);
   setStatus('', 'done');
-if(critical){ const warn=document.createElement('div');warn.style.cssText='margin-top:8px;padding:8px 12px;background:rgba(232,69,0,0.15);border:1px solid #e84500;border-radius:6px;font-family:var(--mono);font-size:11px;color:#e84500;';warn.textContent='⚠ CRITICAL SPEC — Verify against OEM service manual before installation.';resultCard.appendChild(warn);}} catch(e) { setStatus('⚠ API error', ''); console.error(e); }
+} catch(e) { setStatus('⚠ API error', ''); console.error(e); }
 goBtn.disabled = false;
 }
 function showResult(query,data){
@@ -214,7 +213,7 @@ function showResult(query,data){
   else if(data.confidence==='medium'){cl.textContent=`⚠ VERIFY — ${data.confidence_note||'check OEM spec'}`;cl.className='confidence med'}
   else{cl.textContent=`✕ LOW — ${data.confidence_note||'look up OEM'}`;cl.className='confidence low'}
   ['fb-y','fb-n','fb-q'].forEach(id=>document.getElementById(id).className='btn-feedback');
-  resultCard.classList.add('show');feedbackRow.classList.add('show');if(isCritical){ const warn = document.createElement('div'); warn.style.cssText='margin-top:8px;padding:8px 12px;background:rgba(232,69,0,0.15);border:1px solid #e84500;border-radius:6px;font-family:var(--mono);font-size:11px;color:#e84500;'; warn.textContent='⚠ CRITICAL SPEC — Verify against OEM service manual before installation.'; resultCard.appendChild(warn); }
+  resultCard.classList.add('show');feedbackRow.classList.add('show');
 }
 async function logFeedback(correct){
   if(!currentEntry)return;
