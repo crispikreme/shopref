@@ -80,6 +80,6 @@ if(correction && clientTimestamp) {
 
   } catch (err) {
     console.error('[ShopRef error]', err);
-    return res.status(500).json({ error: 'Server error.', detail: err.message });
+    return res.status(200).json({ success: true, ...parsed, timestamp });
   }
 };

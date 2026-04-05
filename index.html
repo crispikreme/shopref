@@ -197,7 +197,7 @@ async function submitQuery(){
   });
   const data = await res.json();
   if (data.error) { setStatus('⚠ API error', ''); console.error(data.error); goBtn.disabled = false; return; }
-  currentEntry = { session: document.getElementById('input-session').value.trim() || '', tech: document.getElementById('input-tech').value.trim() || '', vehicle, query: q, answer: data.answer || '', confidence: data.confidence || '', correct: '', notes: data.confidence_note || '' };
+  currentEntry = { session: document.getElementById('input-session').value.trim() || '', tech: document.getElementById('input-tech').value.trim() || '', vehicle, query: q, answer: data.answer || '', confidence: data.confidence || '', correct: '', notes: data.confidence_note || '', timestamp: data.timestamp, vin: document.getElementById('input-vin').value.trim() || '' }; document.getElementById('input-tech').value.trim() || '', vehicle, query: q, answer: data.answer || '', confidence: data.confidence || '', correct: '', notes: data.confidence_note || '' };
   showResult(q, data);
   addHistory(q, data);
   setStatus('', 'done');
