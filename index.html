@@ -176,7 +176,8 @@ function lockVehicle(){vehicle=`${selYear.value} ${selMake.value} ${selModel.val
 function clearVehicle(){vehicle=null;vehiclePill.style.display='none';vehicleBar.style.display='flex';selYear.value='';selMake.value='';selModel.value='';selMake.disabled=true;selModel.disabled=true;btnLock.disabled=true;resultCard.classList.remove('show');feedbackRow.classList.remove('show');setStatus('','')}
 function setStatus(msg,type){statusBar.innerHTML=msg;statusBar.className='status-bar'+(type?' '+type:'')}
 async function submitQuery(){
-  const q=queryInput.value.trim();
+  const q=queryInput.value.trim();const criticalKeywords = ['torque','head bolt','bearing','clearance','torque spec','bolt torque','clamping','compression','timing','valve clearance','rod bearing','main bearing','head stud'];
+const isCritical = criticalKeywords.some(k => q.toLowerCase().includes(k));
   if(!q)return;incrementSession();
   if(!vehicle){setStatus('⚠ Set vehicle first','thinking');return}
   const goBtn=document.getElementById('btn-go');
@@ -213,7 +214,7 @@ function showResult(query,data){
   else if(data.confidence==='medium'){cl.textContent=`⚠ VERIFY — ${data.confidence_note||'check OEM spec'}`;cl.className='confidence med'}
   else{cl.textContent=`✕ LOW — ${data.confidence_note||'look up OEM'}`;cl.className='confidence low'}
   ['fb-y','fb-n','fb-q'].forEach(id=>document.getElementById(id).className='btn-feedback');
-  resultCard.classList.add('show');feedbackRow.classList.add('show');
+  resultCard.classList.add('show');feedbackRow.classList.add('show');if(isCritical){ const warn = document.createElement('div'); warn.style.cssText='margin-top:8px;padding:8px 12px;background:rgba(232,69,0,0.15);border:1px solid #e84500;border-radius:6px;font-family:var(--mono);font-size:11px;color:#e84500;'; warn.textContent='⚠ CRITICAL SPEC — Verify against OEM service manual before installation.'; resultCard.appendChild(warn); }
 }
 async function logFeedback(correct){
   if(!currentEntry)return;
