@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed.' });
 
   const body = req.body || {};
-  const { session, tech, vehicle, query } = body;
+  const { session, tech, vehicle, query, vin } = body;
 
   if (!query) return res.status(400).json({ error: 'No query provided.' });
 
@@ -48,7 +48,7 @@ module.exports = async (req, res) => {
 
     // Log to Google Sheets
     const timestamp = new Date().toISOString();
-    const row = [timestamp, session ?? '', tech ?? '', vehicle ?? '', query, parsed.answer || '', parsed.confidence || '', '', parsed.confidence_note || ''];
+    const row = [timestamp, session ?? '', tech ?? '', vehicle ?? '', vin ?? '', query, parsed.answer || '', parsed.confidence || '', '', parsed.confidence_note || ''];
 
     const auth = new google.auth.GoogleAuth({ credentials: getCredentials(), scopes: ['https://www.googleapis.com/auth/spreadsheets'] });
     const sheets = google.sheets({ version: 'v4', auth });
