@@ -18,7 +18,23 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed.' });
 
   const body = req.body || {};
-  const { session, tech, vehicle, query, vin } = body;
+  const { session, tech, vehicle, query, vin, correction, timestamp: clientTimestamp } = body;// If this is a correction submission, update existing row
+if(correction && clientTimestamp) {
+  const auth = new google.auth.GoogleAuth({ credentials: getCredentials(), scopes: ['https://www.googleapis.com/auth/spreadsheets'] });
+  const sheets = google.sheets({ version: 'v4', auth });
+  const existing = await sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Sheet1!A:A' });
+  const rows = existing.data.values || [];
+  const rowIndex = rows.findIndex(r => r[0] === clientTimestamp);
+  if(rowIndex > 0) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `Sheet1!K${rowIndex + 1}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: [[correction]] }
+    });
+  }
+  return res.status(200).json({ success: true });
+}
 
   if (!query) return res.status(400).json({ error: 'No query provided.' });
 
