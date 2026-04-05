@@ -76,7 +76,7 @@ if(correction && clientTimestamp) {
       requestBody: { values: [row] }
     });
 
-    return res.status(200).json({ success: true, ...parsed, _raw: raw, _anthropicData: anthropicData });
+    return res.status(200).json({ success: true, ...parsed, timestamp });
 
   } catch (err) {
     console.error('[ShopRef error]', err);
