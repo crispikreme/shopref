@@ -137,7 +137,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     <button class="btn-feedback" id="fb-y" onclick="logFeedback('Y')">Y</button>
     <button class="btn-feedback" id="fb-n" onclick="logFeedback('N')">N</button>
     <button class="btn-feedback" id="fb-q" onclick="logFeedback('?')">?</button>
-  </div>
+  </div><div class="result-card" id="correction-card" style="display:none;margin-top:8px;">
+  <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;">TECH CORRECTION</div>
+  <textarea id="correction-input" placeholder="Enter correct spec from ALLDATA or OEM manual..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px;resize:vertical;min-height:60px;outline:none;box-sizing:border-box;"></textarea>
+  <button onclick="submitCorrection()" style="margin-top:6px;padding:6px 16px;background:var(--accent);color:#000;font-family:var(--cond);font-size:13px;font-weight:700;border:none;border-radius:4px;cursor:pointer;">SUBMIT CORRECTION</button>
+</div></div>
+<div id="history-section"
+
 </div>
 <div class="history" id="history-section" style="display:none">
   <div class="history-label">Session log</div>
@@ -216,8 +222,18 @@ async function logFeedback(correct){
   document.getElementById('fb-q').className='btn-feedback'+(correct==='?'?' selected-q':'');
   currentEntry.correct=correct;
   const lastItem=document.querySelectorAll('.history-item')[0];
-  if(lastItem){const badge=lastItem.querySelector('.h-badge');if(badge){badge.textContent=correct;badge.className=`h-badge ${correct.toLowerCase()}`}}
+  if(lastItem){const badge=lastItem.querySelector('.h-badge');if(badge){badge.textContent=correct;badge.className=`h-badge ${correct.toLowerCase()}`}if(correct==='N') document.getElementById('correction-card').style.display='block';
+else document.getElementById('correction-card').style.display='none';}
   try{await fetch('/api/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(currentEntry)})}catch(e){console.error('Log failed:',e)}
+}async function submitCorrection(){
+  const correction = document.getElementById('correction-input').value.trim();
+  if(!correction || !currentEntry) return;
+  currentEntry.correction = correction;
+  try{ await fetch('/api/log', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...currentEntry, correction})}); }
+  catch(e){ console.error('Correction log failed:',e); }
+  document.getElementById('correction-card').style.display='none';
+  document.getElementById('correction-input').value='';
+  setStatus('✓ Correction logged','done');
 }
 function addHistory(q,data){
   history.unshift({q,answer:data.answer,conf:data.confidence,correct:''});
