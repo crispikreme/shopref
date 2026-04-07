@@ -50,10 +50,9 @@ if(correction && clientTimestamp) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',model: 'claude-sonnet-4-20250514',
+       model: 'claude-sonnet-4-20250514',
 temperature: 0,
 max_tokens: 800,
-        max_tokens: 800,
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -80,8 +79,8 @@ max_tokens: 800,
 
     return res.status(200).json({ success: true, ...parsed, timestamp });
 
-  } catch (err) {
+} catch (err) {
     console.error('[ShopRef error]', err);
-    return res.status(200).json({ success: true, ...parsed, timestamp });
+    return res.status(500).json({ error: err.message });
   }
 };
