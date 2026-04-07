@@ -130,7 +130,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     <span class="clear" onclick="clearVehicle()" title="Change">✕</span>
   </div>
 <input type="text" id="input-engine" style="width:100%;margin-top:6px;background:#1a1a1a;border:1px solid #333;color:#00ff88;padding:8px 12px;font-family:var(--mono);font-size:13px;border-radius:6px;"/>
-  <div class="query-row">
+ <div class="query-row">
+    <input type="text" id="query-input" class="query-input" placeholder="Ask a spec question..." autocomplete="off"/>
     <button class="btn-mic" onclick="toggleMic()" title="Tap to speak">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="9" y="2" width="6" height="13" rx="3"/>
