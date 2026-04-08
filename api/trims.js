@@ -1,5 +1,3 @@
-const fetch = require("node-fetch");
-
 module.exports = async (req, res) => {
   const { year, make, model } = req.query;
 
@@ -7,16 +5,16 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: "make and model required" });
   }
 
-  const url = `https://www.carqueryapi.com/api/0.3/?callback=jsonp&cmd=getTrims&year=${year || ""}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&sold_in_us=1`;
+  const params = new URLSearchParams({ make, model });
+  if (year) params.set("year", year);
+
+  const url = `https://api.api-ninjas.com/v1/cars?${params.toString()}`;
 
   try {
-    const response = await fetch(url);
-    const text = await response.text();
-
-    // CarQuery returns JSONP: jsonp({...}) — strip the wrapper
-    const jsonString = text.replace(/^[^(]+\(/, "").replace(/\);?\s*$/, "");
-    const data = JSON.parse(jsonString);
-
+    const response = await fetch(url, {
+      headers: { "X-Api-Key": process.env.API_NINJAS_KEY }
+    });
+    const data = await response.json();
     res.status(200).json(data);
   } catch (err) {
     console.error("trims.js error:", err.message);
