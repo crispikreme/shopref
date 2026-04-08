@@ -123,7 +123,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     <select id="sel-year"><option value="">Year</option></select>
     <select id="sel-make" disabled><option value="">Make</option></select>
     <select id="sel-model" disabled><option value="">Model</option></select><select id="sel-engine" disabled><option value="">Engine</option></select>
-    <button class="btn-go" id="btn-lock" onclick="lockVehicle()" disabled style="height:36px;font-size:13px;padding:0 14px">SET</button>
+    function lockVehicle(){var eng=document.getElementById('sel-engine');var engVal=eng&&!eng.disabled&&eng.value?' '+eng.value:'';vehicle=selYear.value+' '+selMake.value+' '+selModel.value+engVal;vehicleLabel.textContent=vehicle;vehicleBar.style.display='none';vehiclePill.style.display='flex';queryInput.focus();setStatus('Vehicle set — ask your question','done')}
   </div>
   <div class="vehicle-pill" id="vehicle-pill">
     <span id="vehicle-label"></span>
