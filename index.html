@@ -171,7 +171,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     <div id="history-list"></div>
   </div>
 </div>
-<script>
+<script defer>
 function getNextSession(){const last=parseInt(localStorage.getItem('shopref_session')||'0');return String(last).padStart(3,'0')}
 function incrementSession(){const last=parseInt(localStorage.getItem('shopref_session')||'0');const next=last+1;localStorage.setItem('shopref_session',next);document.getElementById('input-session').value=String(next).padStart(3,'0')}
 document.getElementById('input-session').value=getNextSession();
