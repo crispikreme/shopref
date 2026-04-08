@@ -3,11 +3,11 @@ const fetch = require("node-fetch");
 module.exports = async (req, res) => {
   const { year, make, model } = req.query;
 
-  if (!year || !make || !model) {
-    return res.status(400).json({ error: "Missing year, make, or model" });
+  if (!make || !model) {
+    return res.status(400).json({ error: "make and model required" });
   }
 
-  const url = `https://www.carqueryapi.com/api/0.3/?callback=jsonp&cmd=getTrims&year=${year}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+  const url = `https://www.carqueryapi.com/api/0.3/?callback=jsonp&cmd=getTrims&year=${year || ""}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&sold_in_us=1`;
 
   try {
     const response = await fetch(url);
